@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
-import { Request, Response } from 'express';
+
 (async () => {
 
   // Init the Express application
@@ -37,21 +37,22 @@ import { Request, Response } from 'express';
     res.send("try GET /filteredimage?image_url={{}}")
   } );
   
-  app.get("/filteredimage", async (req, res) => {
+  app.get("/filteredimage", async (req:express.Request, res:express.Response) => {
     const image_url = req.query.image_url;
     if (image_url) {
       try {
         await filterImageFromURL(image_url).then(response => {
-          res.sendFile(response);
+          res.status(200).sendFile(response);
           res.on("finish", function() {
             deleteLocalFiles([response]);
           });
         });
+
       } catch (error) {
         res.status(422).send({
           status: "failed",
           message: "something went wrong, Unable to process image.",
-          verbose: error
+          
         });
       }
     } else {
